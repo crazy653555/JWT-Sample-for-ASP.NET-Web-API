@@ -2,3 +2,4 @@
 WebAPI/packages/
 WebAPI/WebAPI/bin/
 WebAPI/WebAPI/obj/
+*.user

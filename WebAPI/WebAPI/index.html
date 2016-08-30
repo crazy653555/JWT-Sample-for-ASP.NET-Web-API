@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>JWT Sample for ASP.NET Web API</title>
+	<meta charset="utf-8" />
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+</head>
+<body>
+    <h1>JWT Sample for ASP.NET Web API</h1>
+    <hr />
+
+    <section>
+        <h2>Register</h2>
+        <form id="registerForm">
+            <input type="text" name="Username" placeholder="Username" />
+            <input type="password" name="Password" placeholder="Password" />
+            <input type="submit" value="Submit" />
+        </form>
+        <pre id="registerFormResult"></pre>
+    </section>
+
+    <section>
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" name="Username" placeholder="Username" />
+            <input type="password" name="Password" placeholder="Password" />
+            <input type="submit" value="Submit" />
+        </form>
+        <pre id="loginFormResult"></pre>
+    </section>
+
+    <section>
+        <h2>Get User Data by Id</h2>
+        <form id="getUserForm">
+            <input type="text" name="id" placeholder="id" />
+            <input type="submit" value="Submit" />
+        </form>
+        <pre id="getUserFormResult"></pre>
+    </section>
+
+    <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+
+    <script>
+        (function () {
+            $('#registerForm').submit(function (event) {
+                event.preventDefault();
+            });
+            $('#registerForm').find('input[type="submit"]').click(function (event) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/User/Register',
+                    contentType: 'application/json; charset=UTF-8',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        Username: $('#registerForm').find('input[name="Username"]').val(),
+                        Password: $('#registerForm').find('input[name="Password"]').val()
+                    }),
+                    success: function (data, textStatus, jqXHR) {
+                        console.log(arguments);
+                        $('#registerFormResult').html(JSON.stringify(data, null, 4));
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log(arguments);
+                        $('#registerFormResult').html(JSON.stringify(jqXHR.responseJSON, null, 4));
+                    }
+                });
+            });
+        })();
+
+        (function () {
+            $('#loginForm').submit(function (event) {
+                event.preventDefault();
+            });
+            $('#loginForm').find('input[type="submit"]').click(function (event) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/User/Login',
+                    contentType: 'application/json; charset=UTF-8',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        Username: $('#loginForm').find('input[name="Username"]').val(),
+                        Password: $('#loginForm').find('input[name="Password"]').val()
+                    }),
+                    success: function (data, textStatus, jqXHR) {
+                        console.log(arguments);
+                        $('#loginFormResult').html(JSON.stringify(data, null, 4));
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log(arguments);
+                        $('#loginFormResult').html(JSON.stringify(jqXHR.responseJSON, null, 4));
+                    }
+                });
+            });
+        })();
+
+        (function () {
+            $('#getUserForm').submit(function (event) {
+                event.preventDefault();
+            });
+            $('#getUserForm').find('input[type="submit"]').click(function (event) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/User',
+                    contentType: 'application/json; charset=UTF-8',
+                    dataType: 'json',
+                    data: {
+                        id: $('#getUserForm').find('input[name="id"]').val()
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        console.log(arguments);
+                        $('#getUserFormResult').html(JSON.stringify(data, null, 4));
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log(arguments);
+                        $('#getUserFormResult').html(JSON.stringify(jqXHR.responseJSON, null, 4));
+                    }
+                });
+            });
+        })();
+    </script>
+
+</body>
+</html>
