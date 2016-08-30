@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -18,11 +19,12 @@ namespace WebAPI.Controllers
 
         public UserController ()
         {
-            _userList.Add(new User { Id = 1, Username = "jerry", Password = "EC54164E6BA593C3EEFAEE53FCB196C4D9B06A6C", PasswordSalt = "I+OQh6nLY51Ze6yQjnwejQ==", JWTSecret = "zBJHgfpfkDl63EkuKCQ4Fw==" });
+            _userList.Add(new User { Id = 1, Username = "jerry", Password = "EC54164E6BA593C3EEFAEE53FCB196C4D9B06A6C", PasswordSalt = "I+OQh6nLY51Ze6yQjnwejQ==" });
         }
 
         [HttpPost]
-        [ResponseType(typeof(User))]
+        [AllowAnonymous]
+        [ResponseType(typeof(int))]
         [Route("api/User/Register")]
         public IHttpActionResult Register([FromBody]UserRegisterViewModel model)
         {
@@ -41,15 +43,15 @@ namespace WebAPI.Controllers
             user.Username = model.Username.ToLower();
             user.PasswordSalt = _ASS.GenerateSalt();
             user.Password = _ASS.CryptographyPassword(model.Password, user.PasswordSalt);
-            user.JWTSecret = _ASS.GenerateSalt();
 
             _userList.Add(user);
 
-            return Ok(user);
+            return Ok(user.Id);
         }
 
         [HttpPost]
-        [ResponseType(typeof(User))]
+        [AllowAnonymous]
+        [ResponseType(typeof(string))]
         [Route("api/User/Login")]
         public IHttpActionResult Login([FromBody]UserLoginViewModel model)
         {
@@ -63,7 +65,27 @@ namespace WebAPI.Controllers
 
                     if (user.Password == password)
                     {
-                        return Ok(user);
+                        string token = "";
+
+                        try
+                        {
+                            var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                            var now = Math.Round((DateTime.UtcNow.AddSeconds(30) - unixEpoch).TotalSeconds); // token 有效時間為 30s
+                            JWTPayloadViewModel payload = new JWTPayloadViewModel()
+                            {
+                                exp = now,
+                                Id = user.Id,
+                                Username = user.Username
+                            };
+                            string secretKey = ConfigurationManager.AppSettings["JWTSecretKey"];
+                            token = JWT.JsonWebToken.Encode(payload, secretKey, JWT.JwtHashAlgorithm.HS256);
+                        }
+                        catch (Exception ex)
+                        {
+                            return InternalServerError(ex);
+                        }
+
+                        return Ok(token);
                     }
                     else
                     {
@@ -81,9 +103,16 @@ namespace WebAPI.Controllers
 
         [ResponseType(typeof(User))]
         //[Route("api/User/{id:int}")]
-        public IHttpActionResult Get(int id)
+        public IHttpActionResult Get()
         {
-            User user = _userList.FirstOrDefault(x => x.Id == id);
+            JWTPayloadViewModel userInfo = (JWTPayloadViewModel)Request.Properties["userinfo"];
+
+            if (userInfo == null)
+            {
+                return Unauthorized();
+            }
+
+            User user = _userList.FirstOrDefault(x => x.Id == userInfo.Id);
 
             if (user == null)
             {

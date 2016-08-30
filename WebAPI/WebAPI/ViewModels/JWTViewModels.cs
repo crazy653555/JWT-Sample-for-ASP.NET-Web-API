@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace WebAPI.Models
+namespace WebAPI.ViewModels
 {
-    public class User
+    public class JWTPayloadViewModel
     {
+        public object exp { get; set; }
+
         public int Id { get; set; }
         public string Username { get; set; }
-        public string Password { get; set; }
-        public string PasswordSalt { get; set; }
     }
 }

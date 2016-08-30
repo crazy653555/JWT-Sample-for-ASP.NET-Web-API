@@ -32,9 +32,8 @@
     </section>
 
     <section>
-        <h2>Get User Data by Id</h2>
+        <h2>Get User Data by token</h2>
         <form id="getUserForm">
-            <input type="text" name="id" placeholder="id" />
             <input type="submit" value="Submit" />
         </form>
         <pre id="getUserFormResult"></pre>
@@ -66,7 +65,7 @@
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.log(arguments);
-                        $('#registerFormResult').html(JSON.stringify(jqXHR.responseJSON, null, 4));
+                        $('#registerFormResult').html(JSON.stringify(jqXHR.responseJSON, null, 4) || errorThrown);
                     }
                 });
             });
@@ -88,11 +87,12 @@
                     }),
                     success: function (data, textStatus, jqXHR) {
                         console.log(arguments);
+                        localStorage.jwt = data;
                         $('#loginFormResult').html(JSON.stringify(data, null, 4));
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.log(arguments);
-                        $('#loginFormResult').html(JSON.stringify(jqXHR.responseJSON, null, 4));
+                        $('#loginFormResult').html(JSON.stringify(jqXHR.responseJSON, null, 4) || errorThrown);
                     }
                 });
             });
@@ -108,8 +108,8 @@
                     url: `${apiUrl}/api/User`,
                     contentType: 'application/json; charset=UTF-8',
                     dataType: 'json',
-                    data: {
-                        id: $('#getUserForm').find('input[name="id"]').val()
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.jwt}`
                     },
                     success: function (data, textStatus, jqXHR) {
                         console.log(arguments);
@@ -117,7 +117,7 @@
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.log(arguments);
-                        $('#getUserFormResult').html(JSON.stringify(jqXHR.responseJSON, null, 4));
+                        $('#getUserFormResult').html(JSON.stringify(jqXHR.responseJSON, null, 4) || errorThrown);
                     }
                 });
             });
